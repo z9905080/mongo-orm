@@ -3,9 +3,9 @@ package mongo_orm
 import (
 	"context"
 	"errors"
-	log "github.com/z9905080/gloger"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"log"
 	"reflect"
 	"time"
 )
@@ -15,9 +15,9 @@ type MgoDB struct {
 	mError     error
 	client     *mongo.Client
 	ctx        context.Context
-	uri        string // 數據庫網絡地址
-	database   string // 要連接的數據庫
-	collection string // 要連接的集合
+	uri        string
+	database   string
+	collection string
 }
 
 func (m *MgoDB) ConnectDB() *mongo.Database {
@@ -26,7 +26,7 @@ func (m *MgoDB) ConnectDB() *mongo.Database {
 	var err error
 	m.client, err = mongo.Connect(ctx, options.Client().ApplyURI(m.uri).SetMaxPoolSize(20))
 	if err != nil {
-		log.Error(err)
+		log.Fatal(err)
 	}
 
 	database := m.client.Database(m.database)
