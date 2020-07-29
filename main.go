@@ -20,11 +20,32 @@ type MgoDB struct {
 	collection string
 }
 
-func (m *MgoDB) ConnectDB() *mongo.Database {
+func New(opts ...DBOption) *MgoDB {
+
+	// init setting option
+	opt := DBOptions{}
+	for _, o := range opts {
+		o(&opt)
+	}
+
+	return &MgoDB{
+		ctx:        opt.ctx,
+		uri:        opt.uri,
+		database:   opt.database,
+		collection: opt.collection,
+	}
+}
+
+func (m *MgoDB) ConnectDB(opt ...*options.ClientOptions) *mongo.Database {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	var err error
-	m.client, err = mongo.Connect(ctx, options.Client().ApplyURI(m.uri).SetMaxPoolSize(20))
+
+	var optList []*options.ClientOptions
+	optList = append(optList, options.Client().ApplyURI(m.uri))
+	optList = append(optList, opt...)
+
+	m.client, err = mongo.Connect(ctx, optList...)
 	if err != nil {
 		log.Fatal(err)
 	}
