@@ -1,8 +1,5 @@
-module mongo-orm
+module github.com/z9905080/mongo-orm
 
 go 1.14
 
-require (
-	github.com/z9905080/gloger v0.0.6
-	go.mongodb.org/mongo-driver v1.3.5
-)
+require go.mongodb.org/mongo-driver v1.3.5
