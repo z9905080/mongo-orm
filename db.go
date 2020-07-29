@@ -5,7 +5,6 @@ import (
 	"errors"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"log"
 	"reflect"
 	"time"
 )
@@ -36,7 +35,7 @@ func New(opts ...DBOption) *MgoDB {
 	}
 }
 
-func (m *MgoDB) ConnectDB(opt ...*options.ClientOptions) *mongo.Database {
+func (m *MgoDB) ConnectDB(opt ...*options.ClientOptions) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	var err error
@@ -47,11 +46,10 @@ func (m *MgoDB) ConnectDB(opt ...*options.ClientOptions) *mongo.Database {
 
 	m.client, err = mongo.Connect(ctx, optList...)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
-	database := m.client.Database(m.database)
-	return database
+	return nil
 }
 
 func (m *MgoDB) SetCollection(collection string) *MgoDB {
