@@ -2,21 +2,21 @@ package mongo_orm
 
 import (
 	"context"
-	"errors"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"reflect"
 	"time"
 )
 
 type MgoDB struct {
-	isClone    bool
-	mError     error
-	client     *mongo.Client
-	ctx        context.Context
-	uri        string
-	database   string
-	collection string
+	isClone       bool
+	lastInsertID  interface{}
+	lastInsertIDs []interface{}
+	mError        error
+	client        *mongo.Client
+	ctx           context.Context
+	uri           string
+	database      string
+	collection    string
 }
 
 func New(opts ...DBOption) *MgoDB {
@@ -55,59 +55,6 @@ func (m *MgoDB) ConnectDB(opt ...*options.ClientOptions) error {
 func (m *MgoDB) SetCollection(collection string) *MgoDB {
 	m.collection = collection
 	return m.clone()
-}
-
-func (m *MgoDB) First(ctx context.Context, filter interface{}, result interface{}) *MgoDB {
-
-	if result == nil {
-		m.mError = errors.New("can't reflect nil pointer")
-		return m
-	}
-
-	if !m.check() {
-		return m
-	}
-
-	rCollection := m.GetClient().Database(m.database).Collection(m.collection)
-
-	if err := rCollection.FindOne(ctx, filter).Decode(result); err != nil {
-		m.mError = err
-		return m
-	}
-
-	return m
-}
-
-func (m *MgoDB) Find(ctx context.Context, filter interface{}, result interface{}) *MgoDB {
-
-	if result == nil {
-		m.mError = errors.New("can't reflect nil pointer")
-		return m
-	}
-
-	if !m.check() {
-		return m
-	}
-
-	if reflect.TypeOf(result).Elem().Kind() != reflect.Slice {
-		m.mError = errors.New("can't reflect not slice object")
-		return m
-	}
-
-	rCollection := m.GetClient().Database(m.database).Collection(m.collection)
-
-	cursor, err := rCollection.Find(ctx, filter)
-	if err != nil {
-		m.mError = err
-		return m
-	}
-
-	getErr := cursor.All(ctx, result)
-	if getErr != nil {
-		m.mError = getErr
-		return m
-	}
-	return m
 }
 
 func (m *MgoDB) GetClient() *mongo.Client {
