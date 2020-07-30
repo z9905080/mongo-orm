@@ -69,6 +69,14 @@ func (m *MgoDB) Error() error {
 	return m.mError
 }
 
+func (m *MgoDB) LastInsertID() interface{} {
+	return m.lastInsertID
+}
+
+func (m *MgoDB) LastInsertIDs() []interface{} {
+	return m.lastInsertIDs
+}
+
 func (m *MgoDB) check() bool {
 	if m.mError != nil {
 		return false
